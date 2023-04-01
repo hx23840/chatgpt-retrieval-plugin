@@ -118,7 +118,21 @@ def create_document_chunks(
     doc_id = doc.id or str(uuid.uuid4())
 
     # Split the document text into chunks
-    text_chunks = get_text_chunks(doc.text, chunk_token_size)
+    # text_chunks = get_text_chunks(doc.text, chunk_token_size)
+    from langchain.text_splitter import CharacterTextSplitter
+    text_splitter = CharacterTextSplitter(
+        separator="\n",
+        chunk_size=300,
+        chunk_overlap=20,
+        length_function=len,
+    )
+
+    documents = text_splitter.create_documents(
+        [doc.text.replace(" ", "").replace("\n\n\n", "\n").replace("\n\n", "\n")])
+
+    text_chunks = []
+    for t in documents:
+        text_chunks.append(t.page_content.replace("\n", ""))
 
     metadata = (
         DocumentChunkMetadata(**doc.metadata.__dict__)
