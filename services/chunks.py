@@ -132,7 +132,7 @@ def create_document_chunks(
 
     text_chunks = []
     for t in documents:
-        if len(t.page_content) > 30:
+        if len(t.page_content) > 10:
             text_chunks.append(t.page_content.replace("\n", ""))
 
     metadata = (
