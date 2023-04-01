@@ -122,7 +122,7 @@ def create_document_chunks(
     from langchain.text_splitter import CharacterTextSplitter
     text_splitter = CharacterTextSplitter(
         separator="\n",
-        chunk_size=300,
+        chunk_size=100,
         chunk_overlap=20,
         length_function=len,
     )
