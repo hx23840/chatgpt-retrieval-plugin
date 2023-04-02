@@ -32,6 +32,11 @@ class DocumentChunkWithScore(DocumentChunk):
     score: float
 
 
+def get_sort_key(document_chunk: DocumentChunkWithScore) -> int:
+    """获取排序关键字，即 id 中的数字"""
+    return int(document_chunk.id.split('_')[-1])
+
+
 class Document(BaseModel):
     id: Optional[str] = None
     text: str

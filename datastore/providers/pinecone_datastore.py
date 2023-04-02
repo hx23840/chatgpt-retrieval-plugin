@@ -12,7 +12,7 @@ from models.models import (
     DocumentMetadataFilter,
     QueryResult,
     QueryWithEmbedding,
-    Source,
+    Source, get_sort_key,
 )
 from services.date import to_unix_timestamp
 
@@ -91,7 +91,7 @@ class PineconeDataStore(DataStore):
 
         # Split the vectors list into batches of the specified size
         batches = [
-            vectors[i : i + UPSERT_BATCH_SIZE]
+            vectors[i: i + UPSERT_BATCH_SIZE]
             for i in range(0, len(vectors), UPSERT_BATCH_SIZE)
         ]
         # Upsert each batch to Pinecone
@@ -108,8 +108,8 @@ class PineconeDataStore(DataStore):
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(3))
     async def _query(
-        self,
-        queries: List[QueryWithEmbedding],
+            self,
+            queries: List[QueryWithEmbedding],
     ) -> List[QueryResult]:
         """
         Takes in a list of queries with embeddings and filters and returns a list of query results with matching document chunks and scores.
@@ -148,9 +148,9 @@ class PineconeDataStore(DataStore):
 
                 # If the source is not a valid Source in the Source enum, set it to None
                 if (
-                    metadata_without_text
-                    and "source" in metadata_without_text
-                    and metadata_without_text["source"] not in Source.__members__
+                        metadata_without_text
+                        and "source" in metadata_without_text
+                        and metadata_without_text["source"] not in Source.__members__
                 ):
                     metadata_without_text["source"] = None
 
@@ -162,7 +162,11 @@ class PineconeDataStore(DataStore):
                     metadata=metadata_without_text,
                 )
                 query_results.append(result)
-            return QueryResult(query=query.query, results=query_results)
+
+            # 使用 sorted 函数对列表进行排序
+            sorted_document_chunks = sorted(query_results, key=lambda x: get_sort_key(x))
+
+            return QueryResult(query=query.query, results=sorted_document_chunks)
 
         # Use asyncio.gather to run multiple _single_query coroutines concurrently and collect their results
         results: List[QueryResult] = await asyncio.gather(
@@ -173,10 +177,10 @@ class PineconeDataStore(DataStore):
 
     @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(3))
     async def delete(
-        self,
-        ids: Optional[List[str]] = None,
-        filter: Optional[DocumentMetadataFilter] = None,
-        delete_all: Optional[bool] = None,
+            self,
+            ids: Optional[List[str]] = None,
+            filter: Optional[DocumentMetadataFilter] = None,
+            delete_all: Optional[bool] = None,
     ) -> bool:
         """
         Removes vectors by ids, filter, or everything from the index.
@@ -218,7 +222,7 @@ class PineconeDataStore(DataStore):
         return True
 
     def _get_pinecone_filter(
-        self, filter: Optional[DocumentMetadataFilter] = None
+            self, filter: Optional[DocumentMetadataFilter] = None
     ) -> Dict[str, Any]:
         if filter is None:
             return {}
@@ -242,7 +246,7 @@ class PineconeDataStore(DataStore):
         return pinecone_filter
 
     def _get_pinecone_metadata(
-        self, metadata: Optional[DocumentChunkMetadata] = None
+            self, metadata: Optional[DocumentChunkMetadata] = None
     ) -> Dict[str, Any]:
         if metadata is None:
             return {}

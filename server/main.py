@@ -45,7 +45,7 @@ app.mount("/sub", sub_app)
     response_model=UpsertResponse,
 )
 async def upsert_file(
-    file: UploadFile = File(...),
+        file: UploadFile = File(...),
 ):
     document = await get_document_from_file(file)
 
@@ -62,7 +62,7 @@ async def upsert_file(
     response_model=UpsertResponse,
 )
 async def upsert(
-    request: UpsertRequest = Body(...),
+        request: UpsertRequest = Body(...),
 ):
     try:
         ids = await datastore.upsert(request.documents)
@@ -77,12 +77,13 @@ async def upsert(
     response_model=QueryResponse,
 )
 async def query_main(
-    request: QueryRequest = Body(...),
+        request: QueryRequest = Body(...),
 ):
     try:
         results = await datastore.query(
             request.queries,
         )
+
         return QueryResponse(results=results)
     except Exception as e:
         print("Error:", e)
@@ -96,12 +97,13 @@ async def query_main(
     description="Accepts search query objects array each with query and optional filter. Break down complex questions into sub-questions. Refine results by criteria, e.g. time / source, don't do this often. Split queries if ResponseTooLargeError occurs.",
 )
 async def query(
-    request: QueryRequest = Body(...),
+        request: QueryRequest = Body(...),
 ):
     try:
         results = await datastore.query(
             request.queries,
         )
+
         return QueryResponse(results=results)
     except Exception as e:
         print("Error:", e)
@@ -113,7 +115,7 @@ async def query(
     response_model=DeleteResponse,
 )
 async def delete(
-    request: DeleteRequest = Body(...),
+        request: DeleteRequest = Body(...),
 ):
     if not (request.ids or request.filter or request.delete_all):
         raise HTTPException(

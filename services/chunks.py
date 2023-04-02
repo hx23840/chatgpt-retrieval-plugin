@@ -1,3 +1,4 @@
+import time
 from typing import Dict, List, Optional, Tuple
 import uuid
 from models.models import Document, DocumentChunk, DocumentChunkMetadata
@@ -57,7 +58,7 @@ def get_text_chunks(text: str, chunk_token_size: Optional[int]) -> List[str]:
         # Skip the chunk if it is empty or whitespace
         if not chunk_text or chunk_text.isspace():
             # Remove the tokens corresponding to the chunk text from the remaining tokens
-            tokens = tokens[len(chunk) :]
+            tokens = tokens[len(chunk):]
             # Continue to the next iteration of the loop
             continue
 
@@ -82,7 +83,7 @@ def get_text_chunks(text: str, chunk_token_size: Optional[int]) -> List[str]:
             chunks.append(chunk_text_to_append)
 
         # Remove the tokens corresponding to the chunk text from the remaining tokens
-        tokens = tokens[len(tokenizer.encode(chunk_text, disallowed_special=())) :]
+        tokens = tokens[len(tokenizer.encode(chunk_text, disallowed_special=())):]
 
         # Increment the number of chunks
         num_chunks += 1
@@ -97,7 +98,7 @@ def get_text_chunks(text: str, chunk_token_size: Optional[int]) -> List[str]:
 
 
 def create_document_chunks(
-    doc: Document, chunk_token_size: Optional[int]
+        doc: Document, chunk_token_size: Optional[int]
 ) -> Tuple[List[DocumentChunk], str]:
     """
     Create a list of document chunks from a document object and return the document id.
@@ -122,7 +123,7 @@ def create_document_chunks(
     from langchain.text_splitter import CharacterTextSplitter
     text_splitter = CharacterTextSplitter(
         separator="\n",
-        chunk_size=100,
+        chunk_size=200,
         chunk_overlap=20,
         length_function=len,
     )
@@ -132,8 +133,15 @@ def create_document_chunks(
 
     text_chunks = []
     for t in documents:
-        if len(t.page_content) > 10:
-            text_chunks.append(t.page_content.replace("\n", ""))
+        # 获取当前时间戳
+        timestamp = int(time.time())
+        if len(t.page_content) > 30:
+            original_str = t.page_content.replace("\n", "")
+            text_chunks.append(original_str)
+        else:
+            print("*************")
+            print(t.page_content.replace("\n", ""))
+            print("*************")
 
     metadata = (
         DocumentChunkMetadata(**doc.metadata.__dict__)
@@ -162,7 +170,7 @@ def create_document_chunks(
 
 
 def get_document_chunks(
-    documents: List[Document], chunk_token_size: Optional[int]
+        documents: List[Document], chunk_token_size: Optional[int]
 ) -> Dict[str, List[DocumentChunk]]:
     """
     Convert a list of documents into a dictionary from document id to list of document chunks.
@@ -200,7 +208,7 @@ def get_document_chunks(
     for i in range(0, len(all_chunks), EMBEDDINGS_BATCH_SIZE):
         # Get the text of the chunks in the current batch
         batch_texts = [
-            chunk.text for chunk in all_chunks[i : i + EMBEDDINGS_BATCH_SIZE]
+            chunk.text for chunk in all_chunks[i: i + EMBEDDINGS_BATCH_SIZE]
         ]
 
         # Get the embeddings for the batch texts
